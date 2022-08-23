@@ -19,11 +19,54 @@ const app = express()
 app.use(morgan("common"))
 
 // Games
-// TODO GET /games
+// TODO GET /games?limit=10&offset=0
+app.get("/games", async (req, resp) => {
 
+	// Look for the query param call limit, if it exists convert to int
+	// Otherwise use 10 as the defautl
+	const limit = parseInt(req.query.limit) || 10
+	const offset = parseInt(req.query.offset) || 0
+
+	// SQL: select id from games offset m limit n
+	// result is an array of games
+	const games = await findAllGames(offset, limit)
+	const result = []
+	// Loop through the result and get the id
+	for (const g of games) {
+		result.push(`/game/${g.id}`)
+	}
+
+	// 200 OK
+	resp.status(200)
+	// Content-Type: application/json
+	resp.type('application/json')
+	resp.set("X-My-Name", "fred")
+	// This is the payload
+	resp.json(result)
+})
 
 // TODO GET /game/<game_id>
+// alternative GET /game?gameId=<game_id>
+app.get('/game/:gameId', async (req, resp) => {
 
+	// Extract the gameId from the resource name
+	const gameId = req.params.gameId
+	// Find the gameId from the database
+	const result = await findGameById(gameId)
+
+	resp.type('application/json')
+
+	// If cannot find game with the gameId
+	if (!result) {
+		resp.status(404)
+		resp.json({ error: `Cannot find game with gameId ${gameId}` })
+		return
+	}
+
+	// Return the result
+	resp.status(200)
+	resp.json(result)
+})
 
 app.get('/games/search', async (req, resp) => {
 	const q = req.query.q
