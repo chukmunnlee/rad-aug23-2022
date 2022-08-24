@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "openapi:v3": "file:///opt/tmp/rad-aug23-2022/workshop2/customer_oas.yaml"
+    }
+}

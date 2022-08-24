@@ -1,0 +1,106 @@
+openapi: "3.0.3"
+
+info:
+  title: Customer
+  description: Customer endpoints
+  version: "1.0"
+
+servers:
+#- url: http://localhost:3000
+#  description: Development server
+- url: http://localhost:8080
+  description: Reverse proxy
+
+paths:
+  /customer/{custId}:
+    get:
+      description: Get customer record by customer id
+      operationId: findCustomerByCustomerId
+      parameters:
+      - name: custId 
+        in: path
+        schema:
+          type: number
+          format: int32
+          minimum: 100
+        required: true
+      responses:
+        200:
+          description: Return customer record
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Customer"
+            text/csv:
+              schema:
+                type: string
+        404:
+          description: Cannot find customer
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Error"
+
+  /customer:
+    post: 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        201:
+          description: New customer added 
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/CustomerAdded"
+        400:
+          description: Cannot create new customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        customerId:
+          type: number
+          format: int32
+          minimum: 100
+        name:
+          type: string 
+        email:
+          type: string
+          format: email
+      required:
+      - name
+      - email
+    CustomerAdded:
+      type: object 
+      properties:
+        customerId:
+          type: number
+          format: int32
+          minimum: 100
+        message:
+          type: string
+        time:
+          type: string
+      required:
+      - customerId
+      - message
+      - time
+    Error:
+      type: object 
+      properties:
+        message:
+          type: string
+      required:
+      - message
