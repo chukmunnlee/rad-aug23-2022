@@ -1,15 +1,23 @@
 const morgan = require('morgan')
 const express = require('express')
+const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 
 const { findCustomer, addCustomer, getCustomers } =  require('./customerdb')
 
 const PORT = parseInt(process.env.PORT) || 3000
+const zone = rateLimit({
+	windowMs: 1000, max: 10, 
+	//statusCode: 429,
+	standardHeaders: true, legacyHeaders: true
+})
 
 const app = express()
 
+app.use(cors())
 app.use(morgan('common'))
 
-app.get('/customer/:custId', 
+app.get('/customer/:custId', zone,
 	(req, resp) => {
 		const custId = req.params.custId
 		const rec = findCustomer(custId)
